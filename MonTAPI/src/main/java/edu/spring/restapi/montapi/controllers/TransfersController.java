@@ -46,8 +46,7 @@ public class TransfersController {
 	 *            The amount of this transfer.
 	 * @return The result of the transfer with the different error code: <br>
 	 *         - 0: Operation done successfully <br>
-	 *         - 1: An unknown error occurs during the transfer <br>
-	 *         - 2: An error occurs during the transfer and the detail of the
+	 *         - 1: An error occurs during the transfer and the detail of the
 	 *         error is in the error message.
 	 */
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST)
