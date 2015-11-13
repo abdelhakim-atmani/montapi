@@ -1,7 +1,9 @@
 package edu.spring.restapi.montapi.tests;
 
-import static edu.spring.restapi.montapi.ErrorMessages.ACCOUNT_NOT_EXISTS;
-import static edu.spring.restapi.montapi.ErrorMessages.NO_ENOUGH_MONEY;
+import static edu.spring.restapi.montapi.Messages.ACCOUNT_NOT_EXISTS;
+import static edu.spring.restapi.montapi.Messages.NO_ENOUGH_MONEY;
+import static edu.spring.restapi.montapi.Messages.SUCCESS;
+import static edu.spring.restapi.montapi.Messages.FAILED;
 
 import java.net.URI;
 
@@ -56,6 +58,7 @@ public class TransfersControllerTest {
 	@Before
 	public void setUp() throws Exception {
 		transferURI = new URI("/montapi/transfer");
+		// To be sure that the initialisation of the database will run only once.
 		if (accountRepository.getAccountByIban(SOURCE_IBAN) == null) {
 			Client client = new Client();
 			client.setFirstName("Test");
@@ -90,7 +93,7 @@ public class TransfersControllerTest {
 				.param("iban_target", TARGET_IBAN).param("amount", String.valueOf(AMOUNT_TRANSFER_OK)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.jsonPath("status").value("failed"))
+				.andExpect(MockMvcResultMatchers.jsonPath("status").value(FAILED))
 				.andExpect(MockMvcResultMatchers.jsonPath("message").value(ACCOUNT_NOT_EXISTS + NON_EXISTING_IBAN));
 	}
 
@@ -100,7 +103,7 @@ public class TransfersControllerTest {
 				.param("iban_target", NON_EXISTING_IBAN).param("amount", String.valueOf(AMOUNT_TRANSFER_OK)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.jsonPath("status").value("failed"))
+				.andExpect(MockMvcResultMatchers.jsonPath("status").value(FAILED))
 				.andExpect(MockMvcResultMatchers.jsonPath("message").value(ACCOUNT_NOT_EXISTS + NON_EXISTING_IBAN));
 	}
 
@@ -110,7 +113,7 @@ public class TransfersControllerTest {
 				.param("iban_target", TARGET_IBAN).param("amount", String.valueOf(AMOUNT_TRANSFER_FAILED)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.jsonPath("status").value("failed"))
+				.andExpect(MockMvcResultMatchers.jsonPath("status").value(FAILED))
 				.andExpect(MockMvcResultMatchers.jsonPath("message").value(NO_ENOUGH_MONEY));
 	}
 
@@ -120,7 +123,7 @@ public class TransfersControllerTest {
 				.param("iban_target", TARGET_IBAN).param("amount", String.valueOf(AMOUNT_TRANSFER_OK)))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.jsonPath("status").value("success"))
+				.andExpect(MockMvcResultMatchers.jsonPath("status").value(SUCCESS))
 				.andExpect(MockMvcResultMatchers.jsonPath("message").value("Operation done successfully."));
 	}
 }

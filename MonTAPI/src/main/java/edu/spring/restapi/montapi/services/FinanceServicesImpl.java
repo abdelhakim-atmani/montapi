@@ -1,29 +1,59 @@
 package edu.spring.restapi.montapi.services;
 
+import static edu.spring.restapi.montapi.Messages.ACCOUNT_NOT_EXISTS;
+import static edu.spring.restapi.montapi.Messages.NO_ENOUGH_MONEY;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import static edu.spring.restapi.montapi.ErrorMessages.*;
 import edu.spring.restapi.montapi.FinanceException;
 import edu.spring.restapi.montapi.mapping.Account;
 import edu.spring.restapi.montapi.mapping.Transfer;
 import edu.spring.restapi.montapi.repositories.AccountRepository;
 import edu.spring.restapi.montapi.repositories.TransferRepository;
 
-@Component
+/**
+ * Implementation of the interface FinanceServices. This service will execute
+ * queries in a transaction.
+ * 
+ * @author abdelhakim
+ *
+ */
+@Service
 @Transactional
 public class FinanceServicesImpl implements FinanceServices {
 
+	/**
+	 * accountRepo: To access to account table.
+	 */
 	@Autowired
 	private AccountRepository accountRepo;
 
+	/**
+	 * transferRepo: To access to transfer table.
+	 */
 	@Autowired
 	private TransferRepository transferRepo;
 
+	/**
+	 * Transfer money from one account with the iban source to another one whihc
+	 * has the iban target. This function is executed in a transaction. If an
+	 * error occurs all the previous statement will be rolled back.
+	 * 
+	 * @param ibanSource
+	 *            Iban for the source account where the account will be removed.
+	 * @param ibanTarget
+	 *            Iban for the target account where the account will be added.
+	 * @param amount
+	 *            Amount to be transfered.
+	 * @return status of the transfer: <br>
+	 *         - true if the operation has been done successfully - false if an
+	 *         unknown error has been encoured.
+	 */
 	@Override
-	public boolean transferMoney(String ibanSource, String ibanTarget, Long amount) {
+	public void transferMoney(String ibanSource, String ibanTarget, Long amount) {
 
 		Account accountSource = accountRepo.getAccountByIban(ibanSource);
 		Account accountTarget = accountRepo.getAccountByIban(ibanTarget);
@@ -47,6 +77,7 @@ public class FinanceServicesImpl implements FinanceServices {
 		}
 
 		if (accountTarget == null) {
+			// because the service is running in a transaction this exeption will rollback the previous transfer inert.
 			throw new FinanceException(ACCOUNT_NOT_EXISTS + ibanTarget);
 		}
 
@@ -60,7 +91,6 @@ public class FinanceServicesImpl implements FinanceServices {
 		accountTarget.setAmount(accountTarget.getAmount() + amount);
 		accountRepo.save(accountTarget);
 
-		return true;
 	}
 
 }

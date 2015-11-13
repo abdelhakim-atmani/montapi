@@ -15,37 +15,65 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 /**
+ * Account table.
+ * 
  * @author abdelhakim
  *
  */
 @Entity
-@Table(name = "Accounts")
+@Table(name = "Accounts", uniqueConstraints = { @UniqueConstraint(name = "iban_unique", columnNames = { "iban" }) })
 public class Account {
 
+	/**
+	 * accountID: Primary key auto-generated.
+	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer accountID;
 
+	/**
+	 * iban: Cannot be null and must be unique.
+	 */
 	@NotNull
 	private String iban;
 
+	/**
+	 * active: Defined if the account is active or not.
+	 */
 	@NotNull
 	private Boolean active;
 
+	/**
+	 * amount: Account balance.
+	 */
 	@NotNull
 	private Long amount;
 
+	/**
+	 * creationDate: Date of the creation of the account.
+	 */
 	private Date creationDate;
 
+	/**
+	 * updateDate: Updated date of the account. When a transfer is done, this
+	 * value is updated with the current date.
+	 */
 	private Date updateDate;
 
+	/**
+	 * client: Link to the table CLIENT. An account <b>MUST<b> be link to a client.
+	 */
 	@ManyToOne
 	@JoinColumn(name = "clientID", nullable = false)
 	private Client client;
 
+	/**
+	 * transfers: All transfers done for this account.
+	 */
 	@OneToMany(mappedBy = "account")
 	private Set<Transfer> transfers;
 
@@ -113,6 +141,7 @@ public class Account {
 	private void preInsert() {
 		this.creationDate = new Date();
 		this.updateDate = new Date();
+		this.active = true;
 	}
 
 }

@@ -1,7 +1,10 @@
 package edu.spring.restapi.montapi.controllers;
 
+import static edu.spring.restapi.montapi.Messages.FAILED;
+import static edu.spring.restapi.montapi.Messages.SUCCESS;
+
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +24,11 @@ import edu.spring.restapi.montapi.services.FinanceServices;
 public class TransfersController {
 
 	/**
+	 * log: To put log in the defined outpout stream.
+	 */
+	private Logger log = Logger.getLogger(ClientsController.class);
+
+	/**
 	 * financeService: Service to do operation on the accounts.
 	 */
 	@Autowired
@@ -35,68 +43,33 @@ public class TransfersController {
 	 *            IBAN of the account where the money will be added
 	 * @param amount
 	 *            The amount of this transfer.
-	 * @return The result of the transfer with the different error code: - 0:
-	 *         Operation done successfully - 1: An unknown error occurs during
-	 *         the transfer - 2: An error occurs during the transfer and the
-	 *         detail of the error is in the error message.
-	 */
-	@RequestMapping(value = "/transfer/{iban_source}/{iban_target}/{amount}")
-	public TransferResultsDTO transferMoney(@PathVariable(value = "iban_source") String ibanSource,
-			@PathVariable(value = "iban_target") String ibanTarget, @PathVariable(value = "amount") Long amount) {
-		TransferResultsDTO results = new TransferResultsDTO();
-		try {
-			boolean operationStatus = financeService.transferMoney(ibanSource, ibanTarget, amount);
-			if (operationStatus) {
-				results.setErrorCode(0);
-				results.setMessage("Operation done successfully.");
-				results.setStatus("success");
-			} else {
-				results.setErrorCode(1);
-				results.setMessage("Operation failed with unknown reason.");
-				results.setStatus("failed");
-			}
-		} catch (FinanceException ex) {
-			results.setErrorCode(2);
-			results.setMessage(ex.getMessage());
-			results.setStatus("failed");
-		}
-		return results;
-	}
-
-	/**
-	 * Service to transfer money from one account to another one
-	 * 
-	 * @param ibanSource
-	 *            IBAN of the account where the money will be removed.
-	 * @param ibanTarget
-	 *            IBAN of the account where the money will be added
-	 * @param amount
-	 *            The amount of this transfer.
-	 * @return The result of the transfer with the different error code: - 0:
-	 *         Operation done successfully - 1: An unknown error occurs during
-	 *         the transfer - 2: An error occurs during the transfer and the
-	 *         detail of the error is in the error message.
+	 * @return The result of the transfer with the different error code: <br>
+	 *         - 0: Operation done successfully <br>
+	 *         - 1: An unknown error occurs during the transfer <br>
+	 *         - 2: An error occurs during the transfer and the detail of the
+	 *         error is in the error message.
 	 */
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST)
 	public TransferResultsDTO transferMoneyByPost(@RequestParam(value = "iban_source") String ibanSource,
 			@RequestParam(value = "iban_target") String ibanTarget, @RequestParam(value = "amount") Long amount) {
+		log.debug("Starting the transfer from the account " + ibanSource + " to " + ibanTarget + " with the amont "
+				+ amount);
 		TransferResultsDTO results = new TransferResultsDTO();
 		try {
-			boolean operationStatus = financeService.transferMoney(ibanSource, ibanTarget, amount);
-			if (operationStatus) {
-				results.setErrorCode(0);
-				results.setMessage("Operation done successfully.");
-				results.setStatus("success");
-			} else {
-				results.setErrorCode(1);
-				results.setMessage("Operation failed with unknown reason.");
-				results.setStatus("failed");
-			}
+			// Run the transfer through the finance service to have it in a
+			// transaction.
+			financeService.transferMoney(ibanSource, ibanTarget, amount);
+			results.setErrorCode(0);
+			results.setMessage("Operation done successfully.");
+			results.setStatus(SUCCESS);
 		} catch (FinanceException ex) {
-			results.setErrorCode(2);
+			results.setErrorCode(1);
 			results.setMessage(ex.getMessage());
-			results.setStatus("failed");
+			results.setStatus(FAILED);
+			log.error("Transfer failed with the following error => " + ex.getMessage());
 		}
+		log.debug("End of the transfer from the account " + ibanSource + " to " + ibanTarget + " with the amont "
+				+ amount);
 		return results;
 	}
 

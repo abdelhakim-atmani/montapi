@@ -37,10 +37,8 @@ public class Client {
 
 	@NotNull
 	private Integer idCard;
+	
 	private Date creationDate;
-
-	@OneToMany(mappedBy = "client")
-	private List<Address> addresses;
 
 	@OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
 	private List<Account> accounts;
@@ -83,14 +81,6 @@ public class Client {
 
 	public void setCreationDate(final Date creationDate) {
 		this.creationDate = creationDate;
-	}
-
-	public List<Address> getAddresses() {
-		return addresses;
-	}
-
-	public void setAddresses(final List<Address> addresses) {
-		this.addresses = addresses;
 	}
 
 	public List<Account> getAccounts() {
