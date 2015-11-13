@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static edu.spring.restapi.montapi.ErrorMessages.*;
 import edu.spring.restapi.montapi.FinanceException;
 import edu.spring.restapi.montapi.mapping.Account;
 import edu.spring.restapi.montapi.mapping.Transfer;
@@ -28,7 +29,7 @@ public class FinanceServicesImpl implements FinanceServices {
 		Account accountTarget = accountRepo.getAccountByIban(ibanTarget);
 
 		if (accountSource == null) {
-			throw new FinanceException("No account found with the iban : " + ibanSource);
+			throw new FinanceException(ACCOUNT_NOT_EXISTS + ibanSource);
 		}
 
 		if (accountSource.getAmount() > amount) {
@@ -38,17 +39,15 @@ public class FinanceServicesImpl implements FinanceServices {
 			payment.setAmount(amount);
 
 			transferRepo.save(payment);
-			
+
 			accountSource.setAmount(accountSource.getAmount() - amount);
 			accountRepo.save(accountSource);
 		} else {
-			throw new FinanceException(
-					"The source account has no enough money for this operation. Current account balance : "
-							+ accountSource.getAmount());
+			throw new FinanceException(NO_ENOUGH_MONEY);
 		}
 
 		if (accountTarget == null) {
-			throw new FinanceException("No account found with the iban : " + ibanTarget);
+			throw new FinanceException(ACCOUNT_NOT_EXISTS + ibanTarget);
 		}
 
 		Transfer payment = new Transfer();
@@ -57,7 +56,7 @@ public class FinanceServicesImpl implements FinanceServices {
 		payment.setAmount(amount);
 
 		transferRepo.save(payment);
-		
+
 		accountTarget.setAmount(accountTarget.getAmount() + amount);
 		accountRepo.save(accountTarget);
 

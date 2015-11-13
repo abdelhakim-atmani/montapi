@@ -4,7 +4,7 @@ public class TransferResultsDTO {
 
 	private String status;
 	private int errorCode;
-	private String Message;
+	private String message;
 
 	public String getStatus() {
 		return status;
@@ -23,11 +23,11 @@ public class TransferResultsDTO {
 	}
 
 	public String getMessage() {
-		return Message;
+		return message;
 	}
 
 	public void setMessage(final String message) {
-		Message = message;
+		this.message = message;
 	}
 
 }
