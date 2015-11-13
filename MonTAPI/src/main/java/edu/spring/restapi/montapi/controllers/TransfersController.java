@@ -4,6 +4,7 @@ import static edu.spring.restapi.montapi.Messages.FAILED;
 import static edu.spring.restapi.montapi.Messages.SUCCESS;
 
 import org.jboss.logging.Logger;
+import org.jsondoc.core.annotation.ApiQueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,7 +41,7 @@ public class TransfersController {
 	 * @param ibanSource
 	 *            IBAN of the account where the money will be removed.
 	 * @param ibanTarget
-	 *            IBAN of the account where the money will be added
+	 *            IBAN of the account where the money will be added.
 	 * @param amount
 	 *            The amount of this transfer.
 	 * @return The result of the transfer with the different error code: <br>
@@ -50,8 +51,11 @@ public class TransfersController {
 	 *         error is in the error message.
 	 */
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST)
-	public TransferResultsDTO transferMoneyByPost(@RequestParam(value = "iban_source") String ibanSource,
-			@RequestParam(value = "iban_target") String ibanTarget, @RequestParam(value = "amount") Long amount) {
+
+	public TransferResultsDTO transferMoneyByPost(
+			@ApiQueryParam(description = "IBAN of the account where the money will be removed.") @RequestParam(value = "iban_source") String ibanSource,
+			@ApiQueryParam(description = "IBAN of the account where the money will be added.") @RequestParam(value = "iban_target") String ibanTarget,
+			@ApiQueryParam(description = "The amount of this transfer.") @RequestParam(value = "amount") Long amount) {
 		log.debug("Starting the transfer from the account " + ibanSource + " to " + ibanTarget + " with the amont "
 				+ amount);
 		TransferResultsDTO results = new TransferResultsDTO();
